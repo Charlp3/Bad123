@@ -36,7 +36,7 @@
 
   .container{padding:12px;max-width:1400px;margin:0 auto}
   .table-wrap{border:1px solid var(--line);border-radius:12px;background:var(--table-wrap-bg);overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
-  table{width:max-content;min-width:900px;border-collapse:separate;border-spacing:0;color:#111;table-layout:auto}
+  table{width:max-content;min-width:860px;border-collapse:separate;border-spacing:0;color:#111;table-layout:auto}
   thead th{position:sticky;top:0;z-index:2;background:var(--thead-bg);color:var(--thead-text);padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
   th,td{white-space:nowrap}
   tbody td{padding:6px 8px;border-bottom:1px solid var(--line)}
@@ -85,8 +85,8 @@
 <body>
 <header id="appHeader">
   <div class="bar">
-    <div class="title">🏸 BAD 123 <span class="badge" id="version">v1.9.11</span></div>
-    <span class="badge" id="countInscrits">0 inscrits</span>
+    <div class="title">🏸 BAD 123 <span class="badge" id="version">v1.9.12</span></div>
+    <span class="badge" id="countInscrits">0 inscrit</span>
     <label class="switch"><input type="checkbox" id="toggleGsm" checked> GSM</label>
     <label class="switch"><input type="checkbox" id="toggleMail" checked> Mail</label>
     <button class="btn primary" id="btnAdd">➕ Ajouter inscrit</button>
@@ -103,13 +103,8 @@
 
   <div class="bar">
     <button class="btn ghost" id="prevWed">⟵</button>
-    <div id="dateLabel" style="font-weight:800"></div>
     <button class="btn ghost" id="nextWed">⟶</button>
-    <div style="margin-left:auto;display:flex;gap:8px">
-      <button class="btn ghost" id="pickDate">📅 Date</button>
-      <input id="datePicker" type="date" class="hidden" aria-label="Choisir une date">
-      <button class="btn primary" id="goNextWednesday">Prochain mercredi</button>
-    </div>
+    <div id="dateLabel" style="font-weight:800; margin-left:auto; cursor:pointer" title="Touchez pour passer au prochain mercredi"></div>
   </div>
 </header>
 
@@ -127,7 +122,6 @@
           <th>Bad 1</th>
           <th>Bad 2</th>
           <th>Bad 3</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -135,7 +129,7 @@
   </div>
 </main>
 
-<footer>© BAD 123 — Données locales (aucun serveur). iPhone & iPad & Android. 🔨🤖🔧</footer>
+<footer>© Pierre Charlier — BAD 123 (local, hors serveur). iPhone & iPad & Android. 🔨🤖🔧</footer>
 
 <!-- Modal: Ajouter / Editer -->
 <div class="modal-back" id="modalBack" aria-hidden="true">
@@ -187,7 +181,7 @@
 (function(){
   "use strict";
 
-  const APP_VERSION="v1.9.11";
+  const APP_VERSION="v1.9.12";
   document.getElementById('version').textContent=APP_VERSION;
 
   const MIN_WED = "2025-09-17";
@@ -201,13 +195,9 @@
   const headerEl = document.getElementById('appHeader');
   const weeksBar = document.getElementById('weeksBar');
   const tbody = document.getElementById('tbody');
-  const table = document.getElementById('table');
   const dateLabel = document.getElementById('dateLabel');
   const prevWedBtn = document.getElementById('prevWed');
   const nextWedBtn = document.getElementById('nextWed');
-  const goNextWednesdayBtn = document.getElementById('goNextWednesday');
-  const pickDateBtn = document.getElementById('pickDate');
-  const datePicker = document.getElementById('datePicker');
   const toggleGsm = document.getElementById('toggleGsm');
   const toggleMail = document.getElementById('toggleMail');
   const fileCsv = document.getElementById('fileCsv');
@@ -272,7 +262,8 @@
   function render(){
     saveJSON(LS.lastDate, currentDate);
     attendance[currentDate] ??= {};
-    dateLabel.textContent = capitalize(formatDateFR(currentDate));
+    dateLabel.textContent = '📅 ' + capitalize(formatDateFR(currentDate));
+    dateLabel.title = "Touchez pour passer au prochain mercredi";
     prevWedBtn.disabled = (currentDate <= MIN_WED);
     renderWeeks();
 
@@ -284,7 +275,7 @@
 
     tbody.innerHTML="";
     if(people.length===0){
-      const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=9;
+      const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=8;
       td.innerHTML='<div class="small">📂 Aucune donnée. Ajoutez un inscrit (➕) ou importez un CSV.</div>';
       tr.appendChild(td); tbody.appendChild(tr);
     }else{
@@ -302,8 +293,8 @@
         tr.appendChild(cellPresence(p,'b1',p.b1,pres,tr));
         tr.appendChild(cellPresence(p,'b2',p.b2,pres,tr));
         tr.appendChild(cellPresence(p,'b3',p.b3,pres,tr));
-        tr.appendChild(cellActions(p));
 
+        // Edition rapide par clic ligne
         tr.addEventListener('click', (e)=>{
           const tag=e.target.tagName.toLowerCase();
           if(tag==='input' || tag==='button' || e.target.closest('button')) return;
@@ -354,18 +345,6 @@
     });
     td.appendChild(chk); return td;
   }
-  function cellActions(p){
-    const td=document.createElement('td'); td.style.textAlign='center';
-    const edit=document.createElement('button'); edit.className='btn ghost'; edit.textContent='✏️';
-    edit.addEventListener('click', (e)=>{ e.stopPropagation(); openEditModal(p); });
-    const del=document.createElement('button'); del.className='btn danger'; del.textContent='🗑️';
-    del.addEventListener('click', async (e)=>{
-      e.stopPropagation();
-      const ok = await confirmModal(`Supprimer <b>${(p.prenom||"")} ${(p.nom||"")}</b> ?`);
-      if(ok) deletePerson(p);
-    });
-    td.appendChild(edit); td.appendChild(del); return td;
-  }
 
   /* ---------- Quick edit modal ---------- */
   function openEditModal(p){
@@ -386,6 +365,10 @@
   mCancel.addEventListener('click', closeEditModal);
   modalBack.addEventListener('click', (e)=>{ if(e.target===modalBack) closeEditModal(); });
 
+  // Ajouter inscrit (ouvre la modale vide) — FIX
+  btnAdd.addEventListener('click', ()=> openEditModal(null));
+
+  // Enregistrer (ajout / édition)
   mOk.addEventListener('click', ()=>{
     const nom=(mNom.value||"").trim().toUpperCase();
     if(!nom){ mNom.focus(); return; }
@@ -403,6 +386,8 @@
     saveJSON(LS.people, people);
     closeEditModal(); render();
   });
+
+  // Supprimer depuis la modale
   mDelete.addEventListener('click', async ()=>{
     if(!editingId) return;
     const p=people.find(x=>x.id===editingId); if(!p) return;
@@ -453,15 +438,12 @@
   function updateDate(newISO){ currentDate = clampMin(wednesdayOfWeek(newISO)); saveJSON(LS.lastDate,currentDate); render(); }
   prevWedBtn.addEventListener('click', ()=> updateDate(prevWednesdayISO(currentDate)));
   nextWedBtn.addEventListener('click', ()=> updateDate(nextWednesdayISO(currentDate)));
-  goNextWednesdayBtn.addEventListener('click', ()=> updateDate(toISO(nextWednesday(new Date()))));
 
-  /* ---------- 📅 Date : iOS/Android OK ---------- */
-  pickDateBtn.addEventListener('click', ()=>{
-    datePicker.min = MIN_WED;
-    datePicker.value = currentDate;
-    datePicker.click();
+  /* ---------- Cliquer sur la date = prochain mercredi ---------- */
+  dateLabel.addEventListener('click', ()=>{
+    const next = toISO(nextWednesday(new Date(currentDate)));
+    updateDate(next);
   });
-  datePicker.addEventListener('change', e=>{ if(e.target.value) updateDate(e.target.value); });
 
   /* ---------- Toggle colonnes ---------- */
   function applyColumnToggles(){

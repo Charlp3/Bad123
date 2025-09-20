@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>BAD 123</title>
+<style>
+  :root{
+    --header-h: 72px;
+    /* Thème pastel + gris */
+    --bg:#F5ECD8; --panel:#555; --panel-text:#fff;
+    --table-wrap-bg:#f0f0f0; --thead-bg:#666; --thead-text:#fff;
+    --row-odd:#ffffff; --row-even:#ececec; --line:#bdbdbd;
+    --b1:#93c5fd; --b2:#86efac; --b3:#fdba74;
+    --b1-strong:#2563eb; --b2-strong:#16a34a; --b3-strong:#ea580c;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:#111;font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,system-ui;padding-top:var(--header-h)}
+  header{position:fixed;inset:0 0 auto 0;z-index:1000;background:var(--panel);color:var(--panel-text);border-bottom:1px solid rgba(0,0,0,.25);padding-top:env(safe-area-inset-top)}
+  .bar{padding:10px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .title{font-weight:900;font-size:18px;display:flex;gap:8px;align-items:center}
+  .badge{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:12px;padding:2px 8px;border-radius:999px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.25);background:rgba(0,0,0,.2);color:#fff;font-weight:700;cursor:pointer}
+  .btn.primary{background:#22c55e;color:#052e12;border-color:#0e7a3a}
+  .btn.danger{background:#ef4444;color:#fff;border-color:#7f1d1d}
+  .btn.ghost{background:rgba(0,0,0,.2);color:#fff;border-color:rgba(0,0,0,.25)}
+  .btn.info{background:#2563eb;color:#fff;border-color:#1d4ed8}
+  .switch{display:inline-flex;align-items:center;gap:6px}
+  .switch input{appearance:none;width:20px;height:20px;border:2px solid #fff;border-radius:6px;position:relative;background:transparent}
+  .switch input:checked{background:#22c55e;border-color:#22c55e}
+  .switch input:checked::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#052e12;font-weight:900;font-size:14px}
+  .weeks{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:var(--panel);border-top:1px solid rgba(0,0,0,.25);border-bottom:1px solid rgba(0,0,0,.25)}
+  .chip{flex:0 0 auto;padding:5px 9px;border-radius:999px;font-weight:800;font-size:11px;color:#f0f0f0;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15)}
+  .chip.active{background:#2563eb;border-color:#1d4ed8;color:#fff}
+
+  .container{padding:12px;max-width:1400px;margin:0 auto}
+  .table-wrap{border:1px solid var(--line);border-radius:12px;background:var(--table-wrap-bg);overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
+  table{width:max-content;min-width:900px;border-collapse:separate;border-spacing:0;color:#111;table-layout:auto}
+  thead th{position:sticky;top:0;z-index:2;background:var(--thead-bg);color:var(--thead-text);padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+  th,td{white-space:nowrap}
+  tbody td{padding:6px 8px;border-bottom:1px solid var(--line)}
+  tbody tr:nth-child(odd){background:var(--row-odd)}
+  tbody tr:nth-child(even){background:var(--row-even)}
+  tbody tr{cursor:pointer}
+  .present .col-name,.present .col-first{font-weight:900} /* pas de surlignage jaune */
+
+  .mbad{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:4px 8px;border-radius:999px;font-weight:900;font-size:12px;color:#111;margin-right:4px;user-select:none;border:1px solid rgba(0,0,0,.08)}
+  .mbad.b1{background:var(--b1)} .mbad.b2{background:var(--b2)} .mbad.b3{background:var(--b3)}
+  .chk{width:26px;height:26px}
+  .chk.b1{accent-color:var(--b1-strong)} .chk.b2{accent-color:var(--b2-strong)} .chk.b3{accent-color:var(--b3-strong)}
+  .small{font-size:12px;color:#555}
+  .hidden{display:none!important}
+  .mail-btn{margin-left:6px;padding:2px 6px;border-radius:6px;border:1px solid var(--line);background:#fff;color:#111;font-size:12px}
+  footer{color:#6b7280;text-align:center;font-size:12px;padding:18px 12px}
+
+  /* Modals */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000}
+  .modal{width:min(560px, 94vw);background:#111;color:#fff;border:1px solid #333;border-radius:14px;padding:14px}
+  .modal h3{margin:4px 0 10px;font-size:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid .full{grid-column:1/-1}
+  .input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2f2f2f;background:#0f172a;color:#fff}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+  .tag{padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;color:#111}
+  .tag.b1{background:var(--b1)} .tag.b2{background:var(--b2)} .tag.b3{background:var(--b3)}
+  .confirm{width:min(420px,92vw);background:#111;color:#fff;border:1px solid #333;border-radius:12px;padding:14px}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,minmax(84px,1fr));gap:10px}
+  .stat-card{background:#0b0b0b;border:1px solid #222;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;align-items:center}
+  .stat-title{font-size:12px;font-weight:900}
+  .stat-val{font-size:20px;font-weight:900;color:#fff}
+  @media (max-width:420px){ .stats-grid{grid-template-columns:repeat(3,minmax(68px,1fr))} .stat-val{font-size:18px} }
+  @media (min-width:1024px){
+    body{font-size:18px}
+    .title{font-size:20px}
+    thead th{font-size:14px;padding:10px 12px}
+    tbody td{padding:8px 10px}
+    .btn{padding:10px 14px}
+    .container{padding:16px}
+  }
+</style>
+</head>
+<body>
+<header id="appHeader">
+  <div class="bar">
+    <div class="title">🏸 BAD 123 <span class="badge" id="version">v1.9.11</span></div>
+    <span class="badge" id="countInscrits">0 inscrits</span>
+    <label class="switch"><input type="checkbox" id="toggleGsm" checked> GSM</label>
+    <label class="switch"><input type="checkbox" id="toggleMail" checked> Mail</label>
+    <button class="btn primary" id="btnAdd">➕ Ajouter inscrit</button>
+    <label class="btn ghost" for="fileCsv">⬆️ Importer CSV</label>
+    <input id="fileCsv" type="file" accept=".csv,text/csv" class="hidden">
+    <button class="btn ghost" id="btnExport">⬇️ Exporter</button>
+    <button class="btn info" id="btnStats">📊 Stats</button>
+    <button class="btn ghost" id="btnClearWeek">🧽 Présences (semaine)</button>
+    <button class="btn ghost" id="btnClearAll">🧽 Présences (toutes)</button>
+    <button class="btn danger" id="btnReset">🗑️ Tout</button>
+  </div>
+
+  <div class="weeks" id="weeksBar"></div>
+
+  <div class="bar">
+    <button class="btn ghost" id="prevWed">⟵</button>
+    <div id="dateLabel" style="font-weight:800"></div>
+    <button class="btn ghost" id="nextWed">⟶</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn ghost" id="pickDate">📅 Date</button>
+      <input id="datePicker" type="date" class="hidden" aria-label="Choisir une date">
+      <button class="btn primary" id="goNextWednesday">Prochain mercredi</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div id="importStatus" class="small" style="margin:6px 4px;"></div>
+  <div class="table-wrap">
+    <table id="table">
+      <thead>
+        <tr>
+          <th class="col-name">Nom</th>
+          <th class="col-first">Prénom</th>
+          <th class="col-gsm">GSM</th>
+          <th class="col-mail">Mail</th>
+          <th>Appartenance</th>
+          <th>Bad 1</th>
+          <th>Bad 2</th>
+          <th>Bad 3</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>© BAD 123 — Données locales (aucun serveur). iPhone & iPad & Android. 🔨🤖🔧</footer>
+
+<!-- Modal: Ajouter / Editer -->
+<div class="modal-back" id="modalBack" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Inscrit</h3>
+    <div class="grid">
+      <div><label class="small">Nom</label><input id="mNom" class="input" type="text" placeholder="NOM"></div>
+      <div><label class="small">Prénom</label><input id="mPre" class="input" type="text" placeholder="Prénom"></div>
+      <div><label class="small">GSM</label><input id="mGsm" class="input" type="tel" placeholder="0470..."></div>
+      <div><label class="small">Mail</label><input id="mMail" class="input" type="email" placeholder="exemple@mail.com"></div>
+      <div class="row full">
+        <span class="small">Appartenance :</span>
+        <label class="row"><input id="mB1" type="checkbox"><span class="tag b1">Bad 1</span></label>
+        <label class="row"><input id="mB2" type="checkbox"><span class="tag b2">Bad 2</span></label>
+        <label class="row"><input id="mB3" type="checkbox"><span class="tag b3">Bad 3</span></label>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn danger" id="mDelete" title="Supprimer l'inscrit">🗑️ Supprimer</button>
+      <span style="flex:1"></span>
+      <button class="btn ghost" id="mCancel">❌ Annuler</button>
+      <button class="btn primary" id="mOk">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Stats -->
+<div class="modal-back" id="statsBack" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="statsTitle" style="width:min(460px,92vw)">
+    <h3 id="statsTitle">📊 Statistiques — <span id="statsDate"></span></h3>
+    <div id="statsBody" class="stats-grid"></div>
+    <div class="actions"><button class="btn primary" id="statsClose">OK</button></div>
+  </div>
+</div>
+
+<!-- Modal: Confirmation -->
+<div class="modal-back" id="confirmBack" aria-hidden="true">
+  <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <h3 id="confirmTitle" style="margin:0 0 10px;font-size:18px">Confirmer</h3>
+    <div id="confirmMsg" style="margin-bottom:10px;color:#e5e7eb"></div>
+    <div class="actions">
+      <button class="btn ghost" id="confirmNo">Annuler</button>
+      <button class="btn danger" id="confirmYes">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const APP_VERSION="v1.9.11";
+  document.getElementById('version').textContent=APP_VERSION;
+
+  const MIN_WED = "2025-09-17";
+  const LS={people:"BAD123_people", attendance:"BAD123_attendance", lastDate:"BAD123_lastDate"};
+
+  let people = loadJSON(LS.people, []);
+  let attendance = loadJSON(LS.attendance, {});
+  let currentDate = clampMin(loadJSON(LS.lastDate, toISO(nextWednesday(new Date()))));
+
+  // DOM refs
+  const headerEl = document.getElementById('appHeader');
+  const weeksBar = document.getElementById('weeksBar');
+  const tbody = document.getElementById('tbody');
+  const table = document.getElementById('table');
+  const dateLabel = document.getElementById('dateLabel');
+  const prevWedBtn = document.getElementById('prevWed');
+  const nextWedBtn = document.getElementById('nextWed');
+  const goNextWednesdayBtn = document.getElementById('goNextWednesday');
+  const pickDateBtn = document.getElementById('pickDate');
+  const datePicker = document.getElementById('datePicker');
+  const toggleGsm = document.getElementById('toggleGsm');
+  const toggleMail = document.getElementById('toggleMail');
+  const fileCsv = document.getElementById('fileCsv');
+  const importStatus = document.getElementById('importStatus');
+  const btnAdd = document.getElementById('btnAdd');
+  const btnExport = document.getElementById('btnExport');
+  const btnReset = document.getElementById('btnReset');
+  const btnStats = document.getElementById('btnStats');
+  const btnClearWeek = document.getElementById('btnClearWeek');
+  const btnClearAll = document.getElementById('btnClearAll');
+  const countInscrits = document.getElementById('countInscrits');
+
+  // Modals refs
+  const modalBack = document.getElementById('modalBack');
+  const mNom = document.getElementById('mNom');
+  const mPre = document.getElementById('mPre');
+  const mGsm = document.getElementById('mGsm');
+  const mMail = document.getElementById('mMail');
+  const mB1 = document.getElementById('mB1');
+  const mB2 = document.getElementById('mB2');
+  const mB3 = document.getElementById('mB3');
+  const mOk = document.getElementById('mOk');
+  const mCancel = document.getElementById('mCancel');
+  const mDelete = document.getElementById('mDelete');
+  let editingId = null;
+
+  const statsBack = document.getElementById('statsBack');
+  const statsDate = document.getElementById('statsDate');
+  const statsBody = document.getElementById('statsBody');
+  const statsClose = document.getElementById('statsClose');
+
+  const confirmBack = document.getElementById('confirmBack');
+  const confirmMsg = document.getElementById('confirmMsg');
+  const confirmYes = document.getElementById('confirmYes');
+  const confirmNo = document.getElementById('confirmNo');
+
+  /* ---------- Utils ---------- */
+  function loadJSON(k,f){ try{const v=localStorage.getItem(k); return v?JSON.parse(v):f;}catch(e){return f;} }
+  function saveJSON(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+  function toISO(d){ if(typeof d==="string") return d.slice(0,10); const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); return dt.toISOString().slice(0,10); }
+  function formatDateFR(iso){ const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString('fr-BE',{weekday:'long', day:'2-digit', month:'long', year:'numeric'}); }
+  function wednesdayOfWeek(iso){ const d=new Date(iso+"T12:00:00"); const diff=3-d.getDay(); d.setDate(d.getDate()+diff); return toISO(d); }
+  function nextWednesday(from){ const d=new Date(from.getFullYear(),from.getMonth(),from.getDate()); const add=(3-d.getDay()+7)%7||7; d.setDate(d.getDate()+add); return d; }
+  function prevWednesdayISO(iso){ const d=new Date(iso+"T12:00:00"); d.setDate(d.getDate()-7); return toISO(d); }
+  function nextWednesdayISO(iso){ const d=new Date(iso+"T12:00:00"); d.setDate(d.getDate()+7); return toISO(d); }
+  function clampMin(iso){ return (iso < MIN_WED) ? MIN_WED : iso; }
+  function cleanPhone(s){ return String(s||"").replace(/[^\d+]/g,''); }
+  function uid(seed){ const s=(seed||"")+":"+Math.random().toString(36).slice(2,8); let h=0; for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i); h|=0;} return "p"+Math.abs(h); }
+  function escCSV(s){ return String(s==null?"":s).split(";").join(","); }
+  function capitalize(s){ return s? s[0].toUpperCase()+s.slice(1): s; }
+
+  function syncHeaderHeight(){
+    const h=Math.ceil(headerEl.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--header-h', h+'px');
+  }
+  addEventListener('load', syncHeaderHeight, {once:true});
+  addEventListener('resize', ()=> setTimeout(syncHeaderHeight,60), {passive:true});
+  addEventListener('scroll', ()=> setTimeout(syncHeaderHeight,60), {passive:true});
+  new ResizeObserver(()=>syncHeaderHeight()).observe(headerEl);
+
+  /* ---------- RENDER ---------- */
+  function render(){
+    saveJSON(LS.lastDate, currentDate);
+    attendance[currentDate] ??= {};
+    dateLabel.textContent = capitalize(formatDateFR(currentDate));
+    prevWedBtn.disabled = (currentDate <= MIN_WED);
+    renderWeeks();
+
+    // tri alpha
+    people.sort((a,b)=> (a.nom.localeCompare(b.nom) || a.prenom.localeCompare(b.prenom)));
+
+    // compteur
+    countInscrits.textContent = people.length + (people.length>1 ? " inscrits" : " inscrit");
+
+    tbody.innerHTML="";
+    if(people.length===0){
+      const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=9;
+      td.innerHTML='<div class="small">📂 Aucune donnée. Ajoutez un inscrit (➕) ou importez un CSV.</div>';
+      tr.appendChild(td); tbody.appendChild(tr);
+    }else{
+      people.forEach(p=>{
+        const pres = attendance[currentDate][p.id] || {b1:false,b2:false,b3:false};
+        const tr=document.createElement('tr');
+        tr.className = (pres.b1||pres.b2||pres.b3) ? 'present':'';
+        tr.dataset.id=p.id;
+
+        tr.appendChild(cellText(p,'nom','col-name'));
+        tr.appendChild(cellText(p,'prenom','col-first'));
+        tr.appendChild(cellText(p,'gsm','col-gsm'));
+        tr.appendChild(cellMail(p));
+        tr.appendChild(cellMembership(p));
+        tr.appendChild(cellPresence(p,'b1',p.b1,pres,tr));
+        tr.appendChild(cellPresence(p,'b2',p.b2,pres,tr));
+        tr.appendChild(cellPresence(p,'b3',p.b3,pres,tr));
+        tr.appendChild(cellActions(p));
+
+        tr.addEventListener('click', (e)=>{
+          const tag=e.target.tagName.toLowerCase();
+          if(tag==='input' || tag==='button' || e.target.closest('button')) return;
+          openEditModal(p);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+    applyColumnToggles();
+    syncHeaderHeight();
+    saveAll();
+  }
+
+  function cellText(p,key,cls){
+    const td=document.createElement('td'); if(cls) td.classList.add(cls);
+    td.textContent = p[key] || "";
+    return td;
+  }
+  function cellMail(p){
+    const td=document.createElement('td'); td.classList.add('col-mail');
+    const span=document.createElement('span'); span.textContent=p.mail||"";
+    const btn=document.createElement('button'); btn.className='mail-btn'; btn.textContent='✉️';
+    btn.addEventListener('click', (ev)=>{ ev.stopPropagation(); if(!p.mail){ alert("Pas d’adresse mail."); return; } location.href='mailto:'+encodeURIComponent(p.mail.trim()); });
+    const wrap=document.createElement('span'); wrap.style.display='inline-flex'; wrap.style.alignItems='center';
+    wrap.appendChild(span); wrap.appendChild(btn); td.appendChild(wrap); return td;
+  }
+  function cellMembership(p){
+    const td=document.createElement('td');
+    let empty=true;
+    if(p.b1){ empty=false; td.appendChild(badge('B1','b1')); }
+    if(p.b2){ empty=false; td.appendChild(badge('B2','b2')); }
+    if(p.b3){ empty=false; td.appendChild(badge('B3','b3')); }
+    if(empty) td.innerHTML='<span class="small">Aucun</span>';
+    return td;
+  }
+  function badge(txt,cls){ const s=document.createElement('span'); s.className='mbad '+cls; s.textContent=txt; return s; }
+  function cellPresence(p,key,enabled,pres,tr){
+    const td=document.createElement('td'); td.style.textAlign='center';
+    const chk=document.createElement('input'); chk.type='checkbox'; chk.className='chk '+key; chk.disabled=!enabled;
+    chk.checked = !!pres[key];
+    chk.addEventListener('click',e=>e.stopPropagation());
+    chk.addEventListener('change', ()=>{
+      attendance[currentDate] ??= {}; attendance[currentDate][p.id] ??= {b1:false,b2:false,b3:false};
+      attendance[currentDate][p.id][key] = chk.checked;
+      tr.classList.toggle('present', !!(attendance[currentDate][p.id].b1||attendance[currentDate][p.id].b2||attendance[currentDate][p.id].b3));
+      saveJSON(LS.attendance, attendance);
+    });
+    td.appendChild(chk); return td;
+  }
+  function cellActions(p){
+    const td=document.createElement('td'); td.style.textAlign='center';
+    const edit=document.createElement('button'); edit.className='btn ghost'; edit.textContent='✏️';
+    edit.addEventListener('click', (e)=>{ e.stopPropagation(); openEditModal(p); });
+    const del=document.createElement('button'); del.className='btn danger'; del.textContent='🗑️';
+    del.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const ok = await confirmModal(`Supprimer <b>${(p.prenom||"")} ${(p.nom||"")}</b> ?`);
+      if(ok) deletePerson(p);
+    });
+    td.appendChild(edit); td.appendChild(del); return td;
+  }
+
+  /* ---------- Quick edit modal ---------- */
+  function openEditModal(p){
+    editingId = p?.id || null;
+    document.getElementById('modalTitle').textContent = editingId ? "Édition rapide" : "Ajouter un inscrit";
+    mNom.value = (p?.nom||"");
+    mPre.value = (p?.prenom||"");
+    mGsm.value = (p?.gsm||"");
+    mMail.value = (p?.mail||"");
+    mB1.checked = !!(p?.b1);
+    mB2.checked = !!(p?.b2);
+    mB3.checked = !!(p?.b3);
+    mDelete.style.display = editingId ? '' : 'none';
+    modalBack.style.display='flex'; modalBack.setAttribute('aria-hidden','false');
+    mNom.focus();
+  }
+  function closeEditModal(){ modalBack.style.display='none'; modalBack.setAttribute('aria-hidden','true'); editingId=null; }
+  mCancel.addEventListener('click', closeEditModal);
+  modalBack.addEventListener('click', (e)=>{ if(e.target===modalBack) closeEditModal(); });
+
+  mOk.addEventListener('click', ()=>{
+    const nom=(mNom.value||"").trim().toUpperCase();
+    if(!nom){ mNom.focus(); return; }
+    const obj={
+      id: editingId || uid((mMail.value||"")+nom+(mPre.value||"")+Date.now()),
+      nom, prenom:(mPre.value||"").trim(), gsm:cleanPhone(mGsm.value||""), mail:(mMail.value||"").trim().toLowerCase(),
+      b1:!!mB1.checked, b2:!!mB2.checked, b3:!!mB3.checked
+    };
+    if(editingId){
+      const i=people.findIndex(x=>x.id===editingId);
+      if(i>-1) people[i]=obj;
+    }else{
+      people.push(obj);
+    }
+    saveJSON(LS.people, people);
+    closeEditModal(); render();
+  });
+  mDelete.addEventListener('click', async ()=>{
+    if(!editingId) return;
+    const p=people.find(x=>x.id===editingId); if(!p) return;
+    const ok = await confirmModal(`Supprimer <b>${(p.prenom||"")} ${(p.nom||"")}</b> ?`);
+    if(ok){ deletePerson(p); closeEditModal(); }
+  });
+  function deletePerson(p){
+    people = people.filter(x=>x.id!==p.id);
+    Object.keys(attendance).forEach(d=>{ if(attendance[d][p.id]) delete attendance[d][p.id]; });
+    saveAll(); render();
+  }
+
+  /* ---------- Confirmation modal ---------- */
+  function confirmModal(html){
+    confirmMsg.innerHTML = html;
+    confirmBack.style.display='flex'; confirmBack.setAttribute('aria-hidden','false');
+    return new Promise(resolve=>{
+      const onYes=()=>{ cleanup(); resolve(true); };
+      const onNo =()=>{ cleanup(); resolve(false); };
+      function cleanup(){
+        confirmBack.style.display='none'; confirmBack.setAttribute('aria-hidden','true');
+        confirmYes.removeEventListener('click',onYes); confirmNo.removeEventListener('click',onNo);
+        confirmBack.removeEventListener('click',backHandler);
+      }
+      const backHandler=(e)=>{ if(e.target===confirmBack) onNo(); };
+      confirmYes.addEventListener('click', onYes);
+      confirmNo.addEventListener('click', onNo);
+      confirmBack.addEventListener('click', backHandler);
+    });
+  }
+
+  /* ---------- Weeks bar ---------- */
+  function renderWeeks(){
+    weeksBar.innerHTML="";
+    const start=new Date(MIN_WED+"T12:00:00");
+    const end=new Date(start); end.setDate(end.getDate()+7*78);
+    for(let d=new Date(start); d<=end; d.setDate(d.getDate()+7)){
+      const iso=toISO(d);
+      const chip=document.createElement('button');
+      chip.className="chip"+(iso===currentDate?" active":"");
+      chip.textContent=shortFR(iso);
+      chip.addEventListener('click', ()=> updateDate(iso), {passive:true});
+      weeksBar.appendChild(chip);
+    }
+    const active=weeksBar.querySelector('.chip.active'); if(active){ weeksBar.scrollLeft = active.offsetLeft - 40; }
+  }
+  function shortFR(iso){ const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
+  function updateDate(newISO){ currentDate = clampMin(wednesdayOfWeek(newISO)); saveJSON(LS.lastDate,currentDate); render(); }
+  prevWedBtn.addEventListener('click', ()=> updateDate(prevWednesdayISO(currentDate)));
+  nextWedBtn.addEventListener('click', ()=> updateDate(nextWednesdayISO(currentDate)));
+  goNextWednesdayBtn.addEventListener('click', ()=> updateDate(toISO(nextWednesday(new Date()))));
+
+  /* ---------- 📅 Date : iOS/Android OK ---------- */
+  pickDateBtn.addEventListener('click', ()=>{
+    datePicker.min = MIN_WED;
+    datePicker.value = currentDate;
+    datePicker.click();
+  });
+  datePicker.addEventListener('change', e=>{ if(e.target.value) updateDate(e.target.value); });
+
+  /* ---------- Toggle colonnes ---------- */
+  function applyColumnToggles(){
+    document.querySelectorAll('.col-gsm').forEach(td=> td.style.display = toggleGsm.checked? '' : 'none');
+    document.querySelectorAll('.col-mail').forEach(td=> td.style.display = toggleMail.checked? '' : 'none');
+  }
+  toggleGsm.addEventListener('change', applyColumnToggles);
+  toggleMail.addEventListener('change', applyColumnToggles);
+
+  /* ---------- Import/Export ---------- */
+  fileCsv.addEventListener('change', async function(){
+    const f=this.files && this.files[0]; if(!f) return;
+    try{
+      let text=await f.text();
+      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+      text=text.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+      const {rows,delim}=parseCSV(text);
+      if(!rows.length) throw new Error("Fichier vide");
+      // Map CSV : Col1=Bad1, Col2=Bad2, Col3=Bad3, Col4=Nom, Col5=Prénom, Col6=GSM, Col7=Mail
+      people = rows.map(arr=>{
+        const nom  = (arr[3]||"").trim().toUpperCase();
+        const pre  = (arr[4]||"").trim();
+        const gsm  = cleanPhone(arr[5]||"");
+        const mail = String(arr[6]||"").trim().toLowerCase();
+        return { id:uid(mail+nom+pre), nom:nom, prenom:pre, gsm:gsm, mail:mail,
+                 b1:on(arr[0],1), b2:on(arr[1],2), b3:on(arr[2],3) };
+      }).filter(p=>p.nom||p.prenom);
+      attendance={}; // reset feuilles
+      importStatus.innerHTML='<span style="color:#0a7a2e">Import OK ✔️ ('+rows.length+' lignes, délimiteur « '+delim+' »)</span>';
+      render();
+    }catch(err){
+      importStatus.innerHTML='<span style="color:#7a1020">Erreur import: '+(err.message||err)+'</span>';
+    }finally{ this.value=""; }
+  });
+  function parseCSV(text){
+    const lines=text.split("\n").filter(l=>l.trim().length>0);
+    const headerLine=lines[0]||"";
+    const sc=(headerLine.match(/;/g)||[]).length, cm=(headerLine.match(/,/g)||[]).length;
+    const delim=sc>=cm?';':',';
+    function split(line){ const out=[]; let cur="",inQ=false;
+      for(let i=0;i<line.length;i++){ const ch=line[i];
+        if(ch==='\"'){ inQ=!inQ; continue; }
+        if(ch===delim && !inQ){ out.push(cur); cur=""; continue; }
+        cur+=ch;
+      } out.push(cur); return out; }
+    const rows=[]; for(let i=1;i<lines.length;i++) rows.push(split(lines[i]));
+    return {rows,delim};
+  }
+  function on(val,expect){ const s=String(val||"").trim().toLowerCase(); return s===String(expect)||s==="x"||s==="oui"||s==="true"||s==="1"; }
+
+  btnExport.addEventListener('click', ()=>{
+    const lines=[];
+    lines.push("\uFEFF"+"date;person_id;nom;prenom;gsm;mail;bad1;bad2;bad3;presence_b1;presence_b2;presence_b3");
+    const dates=Object.keys(attendance).sort();
+    if(!dates.length){
+      people.forEach(p=>lines.push(["",p.id,escCSV(p.nom),escCSV(p.prenom),escCSV(p.gsm),escCSV(p.mail),p.b1?1:0,p.b2?1:0,p.b3?1:0,"","",""].join(";")));
+    }else{
+      dates.forEach(d=>{
+        people.forEach(p=>{
+          const pres=(attendance[d]&&attendance[d][p.id])||{b1:false,b2:false,b3:false};
+          lines.push([d,p.id,escCSV(p.nom),escCSV(p.prenom),escCSV(p.gsm),escCSV(p.mail),
+            p.b1?1:0,p.b2?1:0,p.b3?1:0,pres.b1?1:0,pres.b2?1:0,pres.b3?1:0].join(";"));
+        });
+      });
+    }
+    downloadCSV("bad123_export.csv", lines.join("\n"));
+  });
+  function downloadCSV(filename,text){
+    try{
+      const blob=new Blob([text],{type:"text/csv;charset=utf-8"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),0);
+    }catch(e){
+      const uri="data:text/csv;charset=utf-8,"+encodeURIComponent(text);
+      window.open(uri,"_blank");
+    }
+  }
+
+  /* ---------- Stats ---------- */
+  btnStats.addEventListener('click', openStats);
+  statsClose.addEventListener('click', ()=>{ statsBack.style.display='none'; statsBack.setAttribute('aria-hidden','true'); });
+  statsBack.addEventListener('click', (e)=>{ if(e.target===statsBack) {statsBack.style.display='none'; statsBack.setAttribute('aria-hidden','true');} });
+
+  function openStats(){
+    const sheet = attendance[currentDate]||{};
+    const count = {b1:0,b2:0,b3:0};
+    Object.keys(sheet).forEach(id=>{
+      const p=sheet[id]; if(p.b1) count.b1++; if(p.b2) count.b2++; if(p.b3) count.b3++;
+    });
+    statsDate.textContent = formatDateFR(currentDate);
+    statsBody.innerHTML = '';
+    statsBody.appendChild(statCard('Bad 1', count.b1, getComputedStyle(document.documentElement).getPropertyValue('--b1')));
+    statsBody.appendChild(statCard('Bad 2', count.b2, getComputedStyle(document.documentElement).getPropertyValue('--b2')));
+    statsBody.appendChild(statCard('Bad 3', count.b3, getComputedStyle(document.documentElement).getPropertyValue('--b3')));
+    statsBack.style.display='flex'; statsBack.setAttribute('aria-hidden','false');
+  }
+  function statCard(title, value, color){
+    const d=document.createElement('div'); d.className='stat-card';
+    const t=document.createElement('div'); t.className='stat-title'; t.style.color=color.trim(); t.textContent=title;
+    const v=document.createElement('div'); v.className='stat-val'; v.textContent=String(value);
+    d.appendChild(t); d.appendChild(v); return d;
+  }
+
+  /* ---------- Vider présences ---------- */
+  btnClearWeek.addEventListener('click', async ()=>{
+    const ok = await confirmModal(`Effacer <b>toutes les présences</b> de la semaine<br><b>${capitalize(formatDateFR(currentDate))}</b> ?`);
+    if(!ok) return;
+    delete attendance[currentDate];
+    saveJSON(LS.attendance, attendance);
+    render();
+  });
+
+  btnClearAll.addEventListener('click', async ()=>{
+    const ok = await confirmModal('Effacer <b>toutes les présences</b> (toutes semaines) ?');
+    if(!ok) return;
+    attendance = {};
+    saveJSON(LS.attendance, attendance);
+    render();
+  });
+
+  /* ---------- Reset total ---------- */
+  btnReset.addEventListener('click', async ()=>{
+    const ok = await confirmModal("Effacer <b>tous</b> les inscrits et présences ?");
+    if(ok){ people=[]; attendance={}; saveAll(); render(); importStatus.textContent="Données réinitialisées."; }
+  });
+
+  function saveAll(){ saveJSON(LS.people, people); saveJSON(LS.attendance, attendance); saveJSON(LS.lastDate, currentDate); }
+
+  // Lancer
+  render();
+
+})();
+</script>
+</body>
+</html>
